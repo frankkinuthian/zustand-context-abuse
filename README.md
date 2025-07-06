@@ -36,16 +36,7 @@ Visit the live blog post: [https://frankkinuthian.github.io/zustand-context-abus
 - **Modern CSS** features and animations
 - **Responsive design** for all devices
 
-## Features
 
-- 📱 **Mobile responsive** design
-- 🎨 **Dark theme** with modern aesthetics
-- 📊 **Reading progress** indicator
-- 🔗 **Social sharing** buttons (Twitter, LinkedIn, copy link)
-- 🎯 **Syntax highlighting** for code blocks
-- 🌟 **Smooth animations** and transitions
-- 🔍 **SEO optimized** with meta tags and Open Graph
-- ⚡ **Fast loading** with minimal dependencies
 
 ## About
 
@@ -115,7 +106,7 @@ zustand-context-abuse/
         └── pages.yml   # GitHub Actions (optional)
 ```
 
-## 🤝 Contributing
+## Contributing
 
 Found a typo or want to suggest improvements? Feel free to:
 
@@ -127,15 +118,15 @@ Found a typo or want to suggest improvements? Feel free to:
 
 If you enjoyed this article, please share it:
 
-- 🐦 [Share on Twitter](https://twitter.com/intent/tweet?text=Zustand%20and%20React%20Context%20Abuse%3A%20A%20Cautionary%20Tale&url=https://frankkinuthian.github.io/zustand-context-abuse)
-- 💼 [Share on LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https://frankkinuthian.github.io/zustand-context-abuse)
-- 📱 Copy the link and share with your developer friends
+- [Share on Twitter](https://twitter.com/intent/tweet?text=Zustand%20and%20React%20Context%20Abuse%3A%20A%20Cautionary%20Tale&url=https://frankkinuthian.github.io/zustand-context-abuse)
+- [Share on LinkedIn](https://www.linkedin.com/sharing/share-offsite/?url=https://frankkinuthian.github.io/zustand-context-abuse)
+- Copy the link and share with your developer friends
 
-## 📝 License
+## License
 
 This project is open source and available under the [MIT License](LICENSE).
 
-## 🎭 Disclaimer
+## Disclaimer
 
 This article is written with humor and self-deprecation. The author acknowledges that sometimes there are legitimate reasons for the patterns described, but encourages developers to question whether complexity is always necessary.
 
