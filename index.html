@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zustand and React Context Abuse: A Cautionary Tale</title>
+    <meta
+      name="description"
+      content="A developer's confession about abusing React Context and misusing Zustand"
+    />
+    <meta name="author" content="Your Name" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article" />
+    <meta
+      property="og:title"
+      content="Zustand and React Context Abuse: A Cautionary Tale"
+    />
+    <meta
+      property="og:description"
+      content="A developer's confession about abusing React Context and misusing Zustand"
+    />
+    <meta
+      property="og:url"
+      content="https://yourusername.github.io/zustand-context-abuse"
+    />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta
+      property="twitter:title"
+      content="Zustand and React Context Abuse: A Cautionary Tale"
+    />
+    <meta
+      property="twitter:description"
+      content="A developer's confession about abusing React Context and misusing Zustand"
+    />
+
+    <!-- Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Syntax Highlighting -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+
+    <style>
+      :root {
+        --primary-color: #2563eb;
+        --secondary-color: #64748b;
+        --accent-color: #f59e0b;
+        --background: #0f172a;
+        --surface: #1e293b;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --text-muted: #94a3b8;
+        --border: #334155;
+        --code-bg: #1e293b;
+        --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: var(--background);
+        color: var(--text-primary);
+        line-height: 1.7;
+        overflow-x: hidden;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 2rem 0;
+        background: var(--gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .header h1 {
+        font-size: clamp(2rem, 5vw, 3rem);
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 0.5rem;
+      }
+
+      .header .subtitle {
+        font-size: 1.2rem;
+        font-weight: 500;
+        opacity: 0.8;
+        font-style: italic;
+      }
+
+      .article {
+        background: var(--surface);
+        border-radius: 1rem;
+        padding: 3rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--border);
+      }
+
+      .article h2 {
+        color: var(--primary-color);
+        font-size: 1.5rem;
+        margin: 2rem 0 1rem 0;
+        font-weight: 600;
+      }
+
+      .article h3 {
+        color: var(--accent-color);
+        font-size: 1.2rem;
+        margin: 1.5rem 0 0.5rem 0;
+        font-weight: 500;
+      }
+
+      .article p {
+        margin-bottom: 1.5rem;
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+      }
+
+      .article em {
+        color: var(--accent-color);
+        font-style: italic;
+      }
+
+      .article strong {
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+
+      .article blockquote {
+        background: var(--code-bg);
+        border-left: 4px solid var(--primary-color);
+        padding: 1rem 1.5rem;
+        margin: 1.5rem 0;
+        border-radius: 0.5rem;
+        font-style: italic;
+        color: var(--text-muted);
+      }
+
+      .code-block {
+        background: var(--code-bg);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        position: relative;
+      }
+
+      .code-block::before {
+        content: attr(data-language);
+        position: absolute;
+        top: 0.5rem;
+        right: 1rem;
+        background: var(--primary-color);
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+      }
+
+      .code-block code {
+        font-family: "JetBrains Mono", "Consolas", monospace;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: var(--text-primary);
+      }
+
+      .inline-code {
+        background: var(--code-bg);
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.25rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.9em;
+        color: var(--accent-color);
+        border: 1px solid var(--border);
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: 3rem;
+        padding: 2rem 0;
+        border-top: 1px solid var(--border);
+      }
+
+      .footer p {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+
+      .footer a {
+        color: var(--primary-color);
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      .footer a:hover {
+        color: var(--accent-color);
+      }
+
+      .reading-progress {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 3px;
+        background: var(--gradient);
+        z-index: 1000;
+        transition: width 0.3s ease;
+      }
+
+      .share-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin: 2rem 0;
+        flex-wrap: wrap;
+      }
+
+      .share-btn {
+        background: var(--surface);
+        color: var(--text-primary);
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: 1px solid var(--border);
+      }
+
+      .share-btn:hover {
+        background: var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 1rem;
+        }
+
+        .article {
+          padding: 2rem;
+        }
+      }
+
+      .fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeIn 0.6s ease forwards;
+      }
+
+      @keyframes fadeIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="reading-progress"></div>
+
+    <div class="container">
+      <header class="header fade-in">
+        <h1>Zustand and React Context Abuse: A Cautionary Tale</h1>
+        <p class="subtitle">Written by Someone Who's Still Doing It</p>
+      </header>
+
+      <article class="article fade-in">
+        <p><em>By a Developer Who Knows Better But Doesn't Do Better</em></p>
+
+        <hr
+          style="
+            border: none;
+            height: 1px;
+            background: var(--border);
+            margin: 2rem 0;
+          "
+        />
+
+        <p>
+          Look, I need to come clean about something. We all do, really. Because
+          somewhere in the back of our collective developer consciousness, we
+          know we're doing it wrong. We know we're making choices that would
+          make our past selves weep and our future selves curse our names. But
+          here we are, still doing it anyway.
+        </p>
+
+        <p>
+          It started innocently enough. I was knee-deep in yet another React
+          project, drowning in prop drilling so intense it felt like I was
+          mining for data through seventeen layers of components. Then I
+          discovered Zustand.
+        </p>
+
+        <blockquote>
+          <p>
+            "A small, fast, and scalable bearbones state-management solution."
+          </p>
+        </blockquote>
+
+        <p>
+          Bearbones. Bear. How adorable is that? It's like the developer
+          equivalent of a comfort animal, but for state management.
+        </p>
+
+        <p>
+          I remember thinking, "This is it. This is my salvation. No more Redux
+          boilerplate that reads like a legal document. No more Context
+          spaghetti that would make an Italian grandmother cry. No more passing
+          props down so many levels that I needed a GPS to find where they ended
+          up."
+        </p>
+
+        <p>
+          But you know what they say about old habits. They don't just die
+          hard—they fake their own deaths and come back to haunt you at 3 AM
+          when you're trying to debug why your component tree looks like a
+          genealogy chart from a soap opera.
+        </p>
+
+        <h2>The Comfort Food of Code</h2>
+
+        <p>
+          Despite Zustand sitting right there, being all elegant and
+          straightforward, I still catch myself writing things like:
+        </p>
+
+        <div class="code-block" data-language="javascript">
+          <code
+            >const ThemeContext = createContext({ theme: 'light', setTheme: ()
+            => {} });</code
+          >
+        </div>
+
+        <p>
+          And then—because apparently I hate myself—I wrap my entire app in a
+          <code class="inline-code">&lt;ThemeProvider&gt;</code> that just uses
+          Zustand under the hood anyway.
+        </p>
+
+        <p>
+          Why do I do this to myself? Because React Context is like comfort food
+          for developers. It's the mac and cheese of state management. Sure,
+          it's basically mashed potatoes with extra butter and gravy made from
+          the tears of future-you trying to debug fourteen nested providers, but
+          it feels <em>familiar</em>. It feels like home.
+        </p>
+
+        <p>
+          There's something perversely satisfying about opening up the React
+          DevTools and seeing this beautiful disaster:
+        </p>
+
+        <div class="code-block" data-language="jsx">
+          <code
+            >&lt;ThemeProvider&gt; &lt;AuthProvider&gt;
+            &lt;NotificationProvider&gt; &lt;PermissionProvider&gt;
+            &lt;UserSettingsProvider&gt; &lt;LanguageProvider&gt;
+            &lt;ToastProvider&gt; &lt;ModalProvider&gt; &lt;App /&gt;
+            &lt;/ModalProvider&gt; &lt;/ToastProvider&gt;
+            &lt;/LanguageProvider&gt; &lt;/UserSettingsProvider&gt;
+            &lt;/PermissionProvider&gt; &lt;/NotificationProvider&gt;
+            &lt;/AuthProvider&gt; &lt;/ThemeProvider&gt;</code
+          >
+        </div>
+
+        <p>
+          It's like a Russian nesting doll of questionable life choices, and I'm
+          oddly proud of it.
+        </p>
+
+        <h2>The Bear That Was Supposed to Save Me</h2>
+
+        <p>
+          Zustand promised me freedom. It whispered sweet promises in my ear:
+          "Just create your store and use it anywhere. No Provider needed! No
+          ceremony required! Just pure, clean state management!"
+        </p>
+
+        <p>So I'd write something sensible like:</p>
+
+        <div class="code-block" data-language="javascript">
+          <code
+            >export const useStore = create((set) => ({ darkMode: false,
+            toggleDarkMode: () => set((state) => ({ darkMode: !state.darkMode
+            })), }));</code
+          >
+        </div>
+
+        <p>Clean. Simple. Beautiful.</p>
+
+        <p>
+          And then, two minutes later, like a recovering addict falling off the
+          wagon:
+        </p>
+
+        <div class="code-block" data-language="javascript">
+          <code
+            >const SettingsContext = createContext({ toggleDarkMode: () => {}
+            });</code
+          >
+        </div>
+
+        <p>
+          WHY? Why do I do this to myself? It's like adopting a perfectly
+          well-behaved dog to get over your toxic ex, but then you keep texting
+          your ex at 2 AM anyway. "U up? Want to manage some state together?"
+        </p>
+
+        <h2>The Unholy Fusion</h2>
+
+        <p>
+          But my absolute favorite abomination—the one that makes me question my
+          career choices and wonder if I should have become a baker instead—is
+          this masterpiece:
+        </p>
+
+        <div class="code-block" data-language="javascript">
+          <code
+            >const ZustandContext = createContext(null); export const
+            ZustandProvider = ({ children }) => { const store = useStore(); //
+            FROM ZUSTAND return ( &lt;ZustandContext.Provider value={store}&gt;
+            {children} &lt;/ZustandContext.Provider&gt; ); };</code
+          >
+        </div>
+
+        <p>
+          Yes. I put Zustand in Context. I took the bear and put it in a cage.
+          Then I buried the cage in a forest of providers. Then I set fire to
+          the forest and called it "architecture."
+        </p>
+
+        <p>
+          When junior developers ask me why I did this, I put on my most serious
+          face and say, "It's for separation of concerns." Then I immediately
+          log off for the day and contemplate my life choices.
+        </p>
+
+        <h2>The Selector Struggle</h2>
+
+        <p>
+          I know Zustand has selectors. I know it has subscriptions and
+          middleware and all sorts of wonderful things that would make my life
+          easier. But do I use them properly? Of course not.
+        </p>
+
+        <p>Instead, I write gems like this:</p>
+
+        <div class="code-block" data-language="javascript">
+          <code
+            >const { value1, value2, value3 } = useMyStore((state) => ({ value1:
+            state.value1, value2: state.value2, value3:
+            state.deeply.nested.value3, }));</code
+          >
+        </div>
+
+        <p>
+          And then I memoize it. Because performance, right? Then I pass it into
+          a Context Provider. Then I read it in a child component that's nested
+          nine layers deep because "clean architecture" and "separation of
+          concerns."
+        </p>
+
+        <p>
+          Meanwhile, my app's performance profile looks like a heart monitor
+          during a panic attack, and I'm sitting there wondering why my bundle
+          size is the size of a small country.
+        </p>
+
+        <h2>The Intervention I Need</h2>
+
+        <p>
+          So here's my confession: I am the problem. I abuse React Context like
+          it owes me money. I misuse Zustand like it's a Swiss Army knife when
+          all I needed was a butter knife. I wrap global state in so many layers
+          of abstraction that it needs its own passport to travel between
+          components.
+        </p>
+
+        <p>
+          I crave complexity the way some people crave chocolate. I am the Pope
+          of Overengineering, the Archbishop of Unnecessary Abstractions, the
+          Grand Wizard of "What If We Just Added One More Layer?"
+        </p>
+
+        <p>
+          But here's the thing—and this is important—I'm not alone in this
+          madness. You've done it too. Don't lie to me. You've built a
+          <code class="inline-code"
+            >GlobalSettingsContextProviderWrapperRoot.tsx</code
+          >
+          and told yourself it was "the scalable solution." You've created
+          custom hooks that wrap other custom hooks that wrap Context that
+          manages Zustand state, and you've called it "maintainable."
+        </p>
+
+        <p>
+          We're all in this together, folks. We're all fighting the same battle
+          against our own worst instincts.
+        </p>
+
+        <h2>The Path to Redemption</h2>
+
+        <p>
+          Maybe—just maybe—it's time to let Zustand be the bear it wants to be.
+          Free range. No Context cage. No ceremony. No seventeen layers of
+          abstraction between "I need this value" and "here's the value."
+        </p>
+
+        <p>
+          Maybe we can learn to trust that simple solutions can be good
+          solutions. That not everything needs to be wrapped in a Provider. That
+          sometimes, the straightforward approach is the right approach.
+        </p>
+
+        <p>
+          Unless... I mean, what if we just wrapped it in one teeny tiny
+          Provider? Just for testing purposes? Just to make it easier to mock?
+          Just to...
+        </p>
+
+        <p>No. Stop. Step away from the keyboard.</p>
+
+        <h2>The End (For Now)</h2>
+
+        <p>
+          This is my story. This is my confession. I am a Context abuser and a
+          Zustand misuser, and the first step to recovery is admitting you have
+          a problem.
+        </p>
+
+        <p>
+          If you've ever uttered the phrase "Let's abstract this Zustand store
+          into a custom hook that wraps a Context so we can swap it later if we
+          ever change libraries," please seek help immediately. We have support
+          groups. We have meetings. We have coffee and we talk about our
+          feelings and our inability to just use the tools as they were
+          designed.
+        </p>
+
+        <p>
+          But until then, I'll be here, still wrapping my state management in
+          unnecessary layers, still creating Context where none is needed, still
+          telling myself that this time will be different.
+        </p>
+
+        <p>
+          Because old habits don't just die hard—they're basically immortal, and
+          they have excellent health insurance.
+        </p>
+
+        <p>
+          <em
+            >P.S. If you're reading this and nodding along,
+            congratulations—you're part of the problem too. Welcome to the club.
+            We meet Thursdays, and we always over-engineer the meeting
+            agenda.</em
+          >
+        </p>
+
+        <div class="share-buttons">
+          <a href="#" class="share-btn" id="shareTwitter">Share on Twitter</a>
+          <a href="#" class="share-btn" id="shareLinkedIn">Share on LinkedIn</a>
+          <a href="#" class="share-btn" id="copyLink">Copy Link</a>
+        </div>
+      </article>
+
+      <footer class="footer">
+        <p>
+          Made with ❤️ and way too much Context •
+          <a href="https://github.com/yourusername/zustand-context-abuse"
+            >View on GitHub</a
+          >
+        </p>
+      </footer>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+      // Initialize syntax highlighting
+      hljs.highlightAll();
+
+      // Reading progress bar
+      window.addEventListener("scroll", () => {
+        const winScroll =
+          document.body.scrollTop || document.documentElement.scrollTop;
+        const height =
+          document.documentElement.scrollHeight -
+          document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        document.querySelector(".reading-progress").style.width =
+          scrolled + "%";
+      });
+
+      // Fade in animations
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px",
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.animationDelay = "0.2s";
+            entry.target.classList.add("fade-in");
+          }
+        });
+      }, observerOptions);
+
+      document.querySelectorAll(".fade-in").forEach((el) => {
+        observer.observe(el);
+      });
+
+      // Share functionality
+      const currentUrl = window.location.href;
+      const title = document.title;
+
+      document.getElementById("shareTwitter").addEventListener("click", (e) => {
+        e.preventDefault();
+        const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+          title
+        )}&url=${encodeURIComponent(currentUrl)}`;
+        window.open(url, "_blank");
+      });
+
+      document
+        .getElementById("shareLinkedIn")
+        .addEventListener("click", (e) => {
+          e.preventDefault();
+          const url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+            currentUrl
+          )}`;
+          window.open(url, "_blank");
+        });
+
+      document.getElementById("copyLink").addEventListener("click", (e) => {
+        e.preventDefault();
+        navigator.clipboard.writeText(currentUrl).then(() => {
+          const btn = e.target;
+          const originalText = btn.textContent;
+          btn.textContent = "Copied!";
+          setTimeout(() => {
+            btn.textContent = originalText;
+          }, 2000);
+        });
+      });
+    </script>
+  </body>
+</html>

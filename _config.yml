@@ -1,0 +1,38 @@
+title: "Zustand and React Context Abuse"
+description: "A developer's confession about state management struggles"
+baseurl: "/zustand-context-abuse"
+url: "https://frankkinuthian.github.io"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# Exclude files from processing
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .github
+
+# Plugin settings
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# SEO settings
+author: "Frank Kinuthia"
+twitter:
+  username: frankkinuthian
+  card: summary_large_image
+
+# Social links
+social:
+  name: Frank Kinuthia
+  links:
+    - https://twitter.com/frankkinuthian
+    - https://github.com/frankkinuthian
+    - https://linkedin.com/in/frankkinuthian
